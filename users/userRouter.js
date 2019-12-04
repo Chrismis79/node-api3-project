@@ -2,8 +2,18 @@ const express = require('express');
 
 const router = express.Router();
 
+const Users = require('./userDb');
+
 router.post('/', (req, res) => {
-  // do your magic!
+  Users.add(req.body)
+    .then(user => {
+      res.status(201).json(user);
+    })
+    .catch(error => {
+      console.log(error);
+      res.status(500).json({message: 'Error adding new user'});
+    });
+
 });
 
 router.post('/:id/posts', (req, res) => {
