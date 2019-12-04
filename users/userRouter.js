@@ -1,11 +1,17 @@
 const express = require('express');
 
+const Users = require('./userDb');
+const Posts = require('../posts/postDb');
+
 const router = express.Router();
 
-const Users = require('./userDb');
+router.use((req, res, next) => {
+  console.log("User router");
+  next();
+})
 
-router.post('/', (req, res) => {
-  Users.add(req.body)
+router.post('/', validateUser, (req, res) => {
+  Users.insert(req.body)
     .then(user => {
       res.status(201).json(user);
     })
@@ -21,7 +27,7 @@ router.post('/:id/posts', (req, res) => {
 });
 
 router.get('/', (req, res) => {
-  // do your magic!
+  
 });
 
 router.get('/:id', (req, res) => {
@@ -44,10 +50,20 @@ router.put('/:id', (req, res) => {
 
 function validateUserId(req, res, next) {
   // do your magic!
+  
 }
 
 function validateUser(req, res, next) {
   // do your magic!
+  const {name} = req.body;
+  if(!name){
+    return res.status(400).json({message: "missing user data"});
+  }
+  if(typeof name !== "string"){
+    return res.status(400).json({error: " Name must be a  string"});
+  }
+  req.body = {name};
+  next();
 }
 
 function validatePost(req, res, next) {
