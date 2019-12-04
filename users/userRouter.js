@@ -45,8 +45,8 @@ router.get('/', (req, res) => {
     })
 });
 
-router.get('/:id', (req, res) => {
- 
+router.get('/:id', validateUserId, (req, res) => {
+  res.status(200).json(req.user);
 });
 
 router.get('/:id/posts', (req, res) => {
@@ -64,7 +64,20 @@ router.put('/:id', (req, res) => {
 //custom middleware
 
 function validateUserId(req, res, next) {
-  
+  const {id} = req.params;
+  Users.getById(id)
+    .then(user => {
+      if(user){
+        req.user = user;
+        next();
+      }else {
+        res.status(404).json({message: "invalid user id from middleware validateUserId"})
+      }
+    })
+  .catch(error => {
+    res.status(500).json({message: "Failed to complete request from middleware validateUserId"})
+  })
+  req.body ={id};
   
 }
 
