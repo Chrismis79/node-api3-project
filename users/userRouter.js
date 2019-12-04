@@ -22,16 +22,31 @@ router.post('/', validateUser, (req, res) => {
 
 });
 
-router.post('/:id/posts', (req, res) => {
-  // do your magic!
+router.post('/:id/posts', validatePost, (req, res) => {
+     const postData = req.body;
+     Posts.insert(postData)
+        .then(post => {
+          res.status(201).json(post);
+        })
+        .catch(error => {
+          res.status(500).json({message: "Error posting new post with user id"})
+        })
+
 });
 
 router.get('/', (req, res) => {
-  
+  Users.get(req.query)
+    .then(user => {
+      res.status(200).json(user);
+    })
+    .catch(error => {
+      console.log("Error GET api/users/", error)
+      res.status(500).json({message: "Error retrieving users"})
+    })
 });
 
 router.get('/:id', (req, res) => {
-  // do your magic!
+ 
 });
 
 router.get('/:id/posts', (req, res) => {
@@ -49,7 +64,7 @@ router.put('/:id', (req, res) => {
 //custom middleware
 
 function validateUserId(req, res, next) {
-  // do your magic!
+  
   
 }
 
@@ -57,10 +72,10 @@ function validateUser(req, res, next) {
   // do your magic!
   const {name} = req.body;
   if(!name){
-    return res.status(400).json({message: "missing user data"});
+    res.status(400).json({message: "missing user data"});
   }
   if(typeof name !== "string"){
-    return res.status(400).json({error: " Name must be a  string"});
+    res.status(400).json({error: " Name must be a  string"});
   }
   req.body = {name};
   next();
@@ -68,6 +83,16 @@ function validateUser(req, res, next) {
 
 function validatePost(req, res, next) {
   // do your magic!
+  const {id: user_id} = req.params;
+  const {text} = req.body;
+  if(!req.body){
+    res.status(400).json({message: "Post requires a body"})
+  }
+  if(!text){
+    res.status(400).json({message: "Post requires text"})
+  }
+  req.body = {user_id, text};
+  next();
 }
 
 module.exports = router;
