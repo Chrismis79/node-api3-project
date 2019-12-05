@@ -63,17 +63,27 @@ router.get('/:id/posts', validateUserId, (req, res) => {
 router.delete('/:id', (req, res) => {
   const {id} = req.params;
   Users.remove(id)
-    .then(() => res.status(204).end())
+    .then(() => {
+    res.status(204).json({message: "User was removed successfully"})
+    })
     .catch(error => {
       console.log("There was an error on DELETE /api/users/:id", error)
       res.status(500).json({
         message: "Error removing user"
       })
-    })
+    });
 });
 
 router.put('/:id', (req, res) => {
-  // do your magic!
+    const {id} = req.params;
+    const {name} = req.body;
+    Users.update(id, {name})
+      .then(user => res.status(200).json(user))
+      .catch(error => {
+        res.status(500).json({
+          message: 'Error updating user information'
+        })
+      })
 });
 
 //custom middleware
