@@ -31,7 +31,6 @@ router.post('/:id/posts', validatePost, (req, res) => {
         .catch(error => {
           res.status(500).json({message: "Error posting new post with user id"})
         })
-
 });
 
 router.get('/', (req, res) => {
@@ -49,12 +48,28 @@ router.get('/:id', validateUserId, (req, res) => {
   res.status(200).json(req.user);
 });
 
-router.get('/:id/posts', (req, res) => {
-  // do your magic!
+router.get('/:id/posts', validateUserId, (req, res) => {
+  const {id} = req.params;
+  Users.getUserPosts(id)
+    .then(userPost => {
+      res.status(200).json(userPost);
+    })
+    .catch(err => {
+      res.status(500).json({message: 'Error retrieving user post by given userID'})
+      
+    })
 });
 
 router.delete('/:id', (req, res) => {
-  // do your magic!
+  const {id} = req.params;
+  Users.remove(id)
+    .then(() => res.status(204).end())
+    .catch(error => {
+      console.log("There was an error on DELETE /api/users/:id", error)
+      res.status(500).json({
+        message: "Error removing user"
+      })
+    })
 });
 
 router.put('/:id', (req, res) => {
@@ -75,6 +90,7 @@ function validateUserId(req, res, next) {
       }
     })
   .catch(error => {
+    console.log(error)
     res.status(500).json({message: "Failed to complete request from middleware validateUserId"})
   })
   req.body ={id};
